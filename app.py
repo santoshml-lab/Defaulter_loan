@@ -1,16 +1,20 @@
-
 import streamlit as st
-import requests
+import numpy as np
+import joblib
 
-st.set_page_config(page_title="Loan Risk AI", layout="centered")
+# ---------------- PAGE CONFIG ----------------
+st.set_page_config(page_title="Loan Defaulter AI", layout="centered")
+
+# ---------------- LOAD MODEL ----------------
+model = joblib.load("loan_model.pkl")
 
 # ---------------- HEADER ----------------
 st.title("🏦 Loan Defaulter Prediction System")
-st.caption("AI-powered Credit Risk Analyzer")
+st.caption("Smart AI-based Risk Analyzer")
 
 st.markdown("---")
 
-# ---------------- INPUT ----------------
+# ---------------- INPUT SECTION ----------------
 st.subheader("📋 Enter Customer Details")
 
 col1, col2 = st.columns(2)
@@ -25,36 +29,31 @@ employment = st.selectbox("👔 Employment Status", ["Employed", "Unemployed"])
 
 st.markdown("---")
 
-# ---------------- BUTTON ----------------
+# ---------------- PREDICT ----------------
 if st.button("🚀 Predict Risk"):
 
     emp = 1 if employment == "Employed" else 0
 
-    input_data = {
-        "income": income,
-        "loan_amount": loan_amount,
-        "employment_status": emp
-    }
+    input_data = np.array([[income, loan_amount, emp]])
+
+    pred = model.predict(input_data)[0]
 
     try:
-        res = requests.post("http://127.0.0.1:8000/predict", json=input_data)
-        output = res.json()
-
-        prob = output["probability"]
-        pred = output["prediction"]
-
-        st.markdown("## 📊 Result Dashboard")
-
-        st.progress(int(prob * 100))
-        st.metric("Risk Probability", f"{prob*100:.2f}%")
-
-        if pred == 1:
-            st.error("🔴 HIGH RISK CUSTOMER")
-        else:
-            st.success("🟢 LOW RISK CUSTOMER")
-
+        prob = model.predict_proba(input_data)[0][1]
     except:
-        st.warning("⚠ API not running. Start FastAPI first.")
+        prob = 0.5
 
+    st.markdown("## 📊 Result Dashboard")
+
+    st.progress(int(prob * 100))
+
+    st.metric("Risk Probability", f"{prob*100:.2f}%")
+
+    if pred == 1:
+        st.error("🔴 HIGH RISK CUSTOMER (Defaulter Likely)")
+    else:
+        st.success("🟢 LOW RISK CUSTOMER (Safe)")
+
+# ---------------- FOOTER ----------------
 st.markdown("---")
-st.caption("Built with ❤️ using Streamlit + ML")
+st.caption("Built with ❤️ using Streamlit + ML Model")
