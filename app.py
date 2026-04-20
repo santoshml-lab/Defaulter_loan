@@ -1,20 +1,21 @@
+
 import streamlit as st
 import numpy as np
 import joblib
 
 # ---------------- PAGE CONFIG ----------------
-st.set_page_config(page_title="Loan Defaulter AI", layout="centered")
+st.set_page_config(page_title="Loan Risk AI", layout="centered")
 
 # ---------------- LOAD MODEL ----------------
 model = joblib.load("loan_model.pkl")
 
 # ---------------- HEADER ----------------
 st.title("🏦 Loan Defaulter Prediction System")
-st.caption("Smart AI-based Risk Analyzer")
+st.caption("AI Powered Credit Risk Analyzer")
 
 st.markdown("---")
 
-# ---------------- INPUT SECTION ----------------
+# ---------------- INPUT ----------------
 st.subheader("📋 Enter Customer Details")
 
 col1, col2 = st.columns(2)
@@ -43,16 +44,28 @@ if st.button("🚀 Predict Risk"):
     except:
         prob = 0.5
 
-    st.markdown("## 📊 Result Dashboard")
+    # ---------------- RISK METER ----------------
+    st.subheader("📊 Risk Meter")
 
-    st.progress(int(prob * 100))
+    risk_percent = int(prob * 100)
 
-    st.metric("Risk Probability", f"{prob*100:.2f}%")
+    st.progress(risk_percent)
 
+    st.write(f"Risk Score: **{risk_percent}%**")
+
+    # ---------------- RESULT ----------------
     if pred == 1:
         st.error("🔴 HIGH RISK CUSTOMER (Defaulter Likely)")
     else:
         st.success("🟢 LOW RISK CUSTOMER (Safe)")
+
+    # ---------------- EXTRA INSIGHT ----------------
+    if risk_percent < 30:
+        st.info("Low risk profile — Good financial stability")
+    elif risk_percent < 70:
+        st.warning("Medium risk — Monitor closely")
+    else:
+        st.error("High risk — Loan not recommended")
 
 # ---------------- FOOTER ----------------
 st.markdown("---")
