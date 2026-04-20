@@ -1,23 +1,20 @@
-
 import streamlit as st
 import numpy as np
 import joblib
 
-# ---------------- PAGE CONFIG ----------------
-st.set_page_config(page_title="Loan Risk AI", layout="centered")
+# ---------------- CONFIG ----------------
+st.set_page_config(page_title="Loan Decision Engine", layout="centered")
 
 # ---------------- LOAD MODEL ----------------
 model = joblib.load("loan_model.pkl")
 
-# ---------------- HEADER ----------------
-st.title("🏦 Loan Defaulter Prediction System")
-st.caption("AI Powered Credit Risk Analyzer")
+# ---------------- UI ----------------
+st.title("🏦 Smart Loan Decision Engine")
+st.caption("AI-powered Credit Approval System")
 
 st.markdown("---")
 
 # ---------------- INPUT ----------------
-st.subheader("📋 Enter Customer Details")
-
 col1, col2 = st.columns(2)
 
 with col1:
@@ -30,8 +27,8 @@ employment = st.selectbox("👔 Employment Status", ["Employed", "Unemployed"])
 
 st.markdown("---")
 
-# ---------------- PREDICT ----------------
-if st.button("🚀 Predict Risk"):
+# ---------------- BUTTON ----------------
+if st.button("🚀 Evaluate Application"):
 
     emp = 1 if employment == "Employed" else 0
 
@@ -44,29 +41,37 @@ if st.button("🚀 Predict Risk"):
     except:
         prob = 0.5
 
-    # ---------------- RISK METER ----------------
-    st.subheader("📊 Risk Meter")
+    risk = prob * 100
 
-    risk_percent = int(prob * 100)
+    # ---------------- DECISION LOGIC ----------------
+    st.subheader("📊 Decision Result")
 
-    st.progress(risk_percent)
+    st.progress(int(risk))
 
-    st.write(f"Risk Score: **{risk_percent}%**")
+    st.write(f"🔢 Risk Score: **{risk:.2f}%**")
 
-    # ---------------- RESULT ----------------
-    if pred == 1:
-        st.error("🔴 HIGH RISK CUSTOMER (Defaulter Likely)")
+    # ---------------- SMART DECISION ENGINE ----------------
+    if risk < 30:
+        st.success("🟢 APPROVED — Low Risk Customer")
+        st.info("Loan is SAFE to approve. Strong profile.")
+
+    elif 30 <= risk < 70:
+        st.warning("🟡 MANUAL REVIEW REQUIRED")
+        st.info("Send to human verification team.")
+
     else:
-        st.success("🟢 LOW RISK CUSTOMER (Safe)")
+        st.error("🔴 REJECTED — High Risk Customer")
+        st.info("Loan not recommended due to high default probability.")
 
     # ---------------- EXTRA INSIGHT ----------------
-    if risk_percent < 30:
-        st.info("Low risk profile — Good financial stability")
-    elif risk_percent < 70:
-        st.warning("Medium risk — Monitor closely")
-    else:
-        st.error("High risk — Loan not recommended")
+    st.markdown("---")
+    st.subheader("🧠 AI Insight")
 
-# ---------------- FOOTER ----------------
-st.markdown("---")
-st.caption("Built with ❤️ using Streamlit + ML Model")
+    if loan_amount > income * 2:
+        st.write("⚠ Loan amount is very high compared to income.")
+
+    if employment == "Unemployed":
+        st.write("⚠ Employment status increases risk factor.")
+
+    if risk < 30:
+        st.write("✔ Strong financial stability detected.")
