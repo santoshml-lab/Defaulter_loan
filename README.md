@@ -9,8 +9,7 @@
 
 ---
 
-## 🔥 Live Demo
-👉 [Add Streamlit / Deployment Link Here]
+
 
 ---
 
